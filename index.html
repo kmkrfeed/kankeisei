@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TRPG 関係性蒐集機関</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title">TRPG 関係性蒐集機関</h1>
+    <div class="actions">
+      <button id="btnExportHtml" class="btn-secondary" disabled>HTML出力</button>
+      <button id="btnExportFusetter" class="btn-secondary" disabled>ふせったー出力</button>
+    </div>
+  </header>
+
+  <main class="container">
+      <!-- スタート画面 -->
+  <section id="startPanel" class="panel start-panel">
+    <h2>概要</h2>
+    <p class="hint">
+      真夜中に、――のことが脳裏に過ぎったから、呼ばれたんだ。<br>
+      月が見える十の部屋を巡って、自分と〇〇の関係に答えを出そう。
+    </p>
+
+    <h2>キャラクター設定</h2>
+      <div class="row">
+        <label for="playerNameInput"><span>回答者</span></label>
+        <input id="playerNameInput" type="text" placeholder="あなたのキャラクターの名前" />
+      </div>
+      <div class="row">
+        <label for="targetNameInput"><span>対象</span></label>
+        <input id="targetNameInput" type="text" placeholder="回答者の脳裏に過ぎった名前" />
+      </div>
+      <div class="row">
+        <button id="btnStart" class="btn-primary">Start</button>
+      </div>
+      <p class="status" id="status"></p>
+    </section>
+
+    
+
+    <!-- ゲーム本体 -->
+    <section id="gamePanel" class="panel game-panel" hidden>
+      <div class="scene-title" id="sceneTitle">—</div>
+
+      <!-- ログ（描写＋台詞＋質問を1本化） -->
+      <div id="log" class="log"></div>
+
+      <!-- Next と Entrance 全文Skip -->
+        <div class="form-actions" id="navActions"></div>
+        <button id="btnNext" class="btn-secondary">Next ▶</button>
+        <button id="btnEntranceSkip" class="btn-secondary" hidden>Silent</button>
+      </div>
+
+      <!-- 回答フォーム（質問の時だけ表示） -->
+      <form id="formArea" class="form-area" hidden>
+        <div id="formFields" class="form-fields"></div>
+        <!-- 右側に Answer / Silent を並べる（入力欄と横並びで作るのでここは予備） -->
+        <button id="btnSubmit" type="submit" class="btn-primary" disabled>Answer ▶</button>
+        <button id="btnSkip" type="button" class="btn-secondary">Silent</button>
+      </form>
+
+      <!-- 自由発言（回答中以外・終了前のみ表示） -->
+      <form id="chatArea" class="chat-area" hidden>
+        <input id="chatInput" type="text" placeholder="自由発言（キャラクターのセリフ）を入力…" />
+        <button id="btnChat" type="submit" class="btn-secondary">Send</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <small>© こめ鞍ヰ</small>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

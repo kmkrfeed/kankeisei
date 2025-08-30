@@ -1,0 +1,175 @@
+/* ===== Dark Gray x White Readable Theme ===== */
+:root{
+  --bg:#1a1b1e;
+  --panel:#232428;
+  --panel-strong:#2a2c31;
+  --text:#f1f1f3;
+  --muted:#b3b6bc;
+  --accent:#8ab4ff;
+  --line:#3a3d44;
+  --warn:#ffd24d; --warn-bg:#2a2618;
+  --neg:#ffb3af; --neg-bg:#2a1918;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--text); background:var(--bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+               "Helvetica Neue", "Noto Sans JP", "Hiragino Kaku Gothic ProN",
+               "Meiryo", Arial, sans-serif;
+  letter-spacing:.1px; line-height:1.7;
+}
+
+.site-header,.site-footer{
+  position:sticky; top:0; z-index:10;
+  background:var(--panel-strong); color:var(--text);
+  border-bottom:1px solid var(--line); padding:12px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.site-footer{ position:static; border-top:1px solid var(--line); border-bottom:none; justify-content:center; }
+h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.3px; color:var(--accent)}
+
+.actions{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.actions button{
+  background:transparent; color:var(--text);
+  border:1px solid var(--line); border-radius:10px; padding:10px 12px; cursor:pointer; min-height:40px;
+}
+.actions button:hover{ background:var(--panel) }
+.actions button:disabled{ opacity:.45; cursor:not-allowed; filter:grayscale(0.6); }
+#status{color:var(--muted); font-size:12px; margin-left:8px}
+
+.container{max-width:960px; margin:18px auto; padding:0 16px}
+.panel,.scenario{
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:16px; padding:18px;
+  box-shadow: 0 12px 24px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.06) inset;
+}
+.scene-title{ margin:2px 4px 12px; font-weight:800; font-size:18px; color:var(--accent); border-bottom:2px solid var(--accent); padding-bottom:6px; }
+
+/* Start */
+.start-panel h2{margin:6px 0 14px; font-weight:800; color:var(--accent)}
+.start-panel .row{display:flex; align-items:center; gap:12px; margin:10px 0}
+.start-panel .row span{min-width:15em; color:var(--muted)}
+.start-panel input[type="text"]{
+  background:var(--panel-strong); color:var(--text);
+  border:1px solid var(--line); border-radius:10px; padding:10px; font-size:16px;
+}
+.start-panel button{
+  margin-top:8px; background:transparent; color:var(--text);
+  border:1px solid var(--line); border-radius:10px; padding:10px 14px; cursor:pointer; min-height:44px;
+}
+.start-panel button:hover{ background:var(--panel-strong) }
+.hint{color:var(--muted); font-size:13px}
+.uline{text-decoration:underline}
+
+/* Narration+Question box */
+.narration{
+  background:var(--panel-strong); border:1px solid var(--line);
+  border-radius:12px; padding:12px; margin-bottom:10px;
+}
+.btn-secondary{
+  background:transparent; color:var(--text); border:1px solid var(--line);
+  border-radius:10px; padding:10px 14px; cursor:pointer; min-height:44px;
+}
+.btn-secondary:hover{ background:var(--panel) }
+
+/* Log */
+.log{
+  background:var(--panel-strong); border:1px solid var(--line);
+  border-radius:12px; padding:14px; height:52vh; overflow-y:auto;
+}
+.line{margin:8px 0}
+.sys{color:#cfd3da}         /* 地の文（周囲描写） */
+.term{color:#e9ecf8}        /* 記録係（端末） */
+.pc{color:#ffffff; font-weight:700}  /* キャラクター */
+.q{color:#e7eeff}
+.a{color:#fafafa}
+.room{color:var(--accent); font-weight:800}
+
+/* Notice */
+.notice{margin:12px 0 0; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--panel-strong); color:var(--text)}
+.notice.warn{border-color:var(--warn); background:var(--warn-bg)}
+.notice.neg{border-color:var(--neg); background:var(--neg-bg)}
+
+/* Form */
+.form-area{margin-top:12px}
+.form-area[hidden]{display:none}
+.form-fields{
+  display:grid; 
+  gap:10px;
+  grid-template-columns: 1fr;
+}
+.form-area input[type="text"], .form-area input[type="number"], .form-area textarea, .form-area select{
+  width:100%; background:var(--panel-strong); color:var(--text);
+  border:1px solid var(--line); border-radius:10px; padding:10px; font-size:16px;
+}
+.form-area textarea{min-height:96px; resize:vertical}
+.form-actions{margin-top:10px; display:flex; gap:8px; justify-content:flex-end}
+.form-actions button{
+  background:var(--accent); color:#0b0f1a; border:none; border-radius:10px; padding:10px 14px; cursor:pointer; min-height:44px; font-weight:800;
+}
+.form-actions button[disabled]{ opacity:.5; cursor:not-allowed }
+
+/* Free chat */
+.chat-area{ margin-top:12px; display:flex; gap:8px; align-items:center; }
+.chat-area input{
+  flex:1; background:var(--panel-strong); color:var(--text); border:1px solid var(--line);
+  border-radius:10px; padding:10px; font-size:16px;
+}
+.chat-area button{ background:transparent; color:var(--text); border:1px solid var(--line);
+  border-radius:10px; padding:10px 14px; cursor:pointer; min-height:44px; }
+.chat-area button:hover{ background:var(--panel) }
+
+/* === Primary Button: Answer と同一見た目で統一 === */
+.btn-primary{
+  background:var(--accent);
+  color:#0b0f1a;
+  border:none;
+  border-radius:10px;
+  padding:10px 14px;
+  cursor:pointer;
+  min-height:44px;
+  font-weight:800;
+}
+.btn-primary[disabled]{ opacity:.5; cursor:not-allowed; }
+
+/* === narrow fix: <= 500px (統合版) === */
+@media (max-width: 500px){
+  .container { padding: 0 12px; }
+  .site-header, .site-footer { padding: 10px 12px; }
+
+  /* スタート画面の行は縦積みにし、入力は全幅 */
+  .start-panel .row{
+    flex-direction: column;
+    align-items: stretch;
+  }
+  /* ラベル幅：過不足を避けるため可変に。固定したいなら 10em に変更可 */
+  .start-panel .row span{ 
+    min-width: clamp(0, 35vw, 10em);
+  }
+  .start-panel input[type="text"]{ width: 100%; }
+
+  /* ログ高さとアクションの折り返し */
+  .log{ height: 48vh; }
+
+  .form-actions{
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .form-actions button{
+    width: calc(50% - 3px);
+  }
+
+  /* 自由発言欄（はみ出し防止） */
+  .chat-area{ gap: 6px; }
+  .chat-area input{
+    min-width: 0; 
+    width: 1%;
+  }
+
+  /* Next / Silent の横はみ出し抑止 */
+  #navActions{ flex-wrap: wrap; }
+  #navActions > button{ flex: 1; }
+}
+
