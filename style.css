@@ -345,7 +345,7 @@ main{
  {
     display: flex;
     flex-direction: column;
-    min-height: calc(90vh - var(--footer-height, 40px));
+    min-height: calc(90dvh - var(--footer-height, 40px));
     /* ヘッダーが sticky なら header高さも引いてOK */
   }
   
