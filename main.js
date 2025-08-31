@@ -427,14 +427,18 @@ function queueLinesFromBlock(text, forceCls=null){
     const s = seg.trim();
     if(!s) return;
     let cls = "sys";
-    if(forceCls){ cls = forceCls; }
-    else if(s.startsWith("記録係：")){ cls = "term"; }
-
-    // ★ 展開してからキューへ
-    SHOW.queue.push({ text: expandTargetVars(s), cls });
+    if(forceCls){
+      cls = forceCls;
+    }
+    // ★ ここで「記録係：」「？？：」をまとめて判定
+    else if(s.startsWith("記録係：") || s.startsWith("？？：")){
+      cls = "term";
+    }
+    SHOW.queue.push({ text: s, cls });
   });
   updateNextAvailability();
 }
+
 
 function queueQuestion(text){
   const s = text.startsWith("記録係：") ? text : `記録係：${text}`;
