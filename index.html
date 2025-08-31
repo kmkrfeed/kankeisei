@@ -10,8 +10,9 @@
   <header class="site-header">
     <h1 class="site-title">TRPG 関係性蒐集機関</h1>
     <div class="actions">
-      <button id="btnExportHtml" class="btn-secondary" disabled>HTML出力</button>
-      <button id="btnExportFusetter" class="btn-secondary" disabled>ふせったー出力</button>
+      <button id="btnExportHtml" class="btn-secondary" hidden disabled>ログ出力(html)</button>
+      <button id="btnExportFusetter" class="btn-secondary" hidden disabled>ふせったー出力(txt)</button>
+
     </div>
   </header>
 
@@ -20,8 +21,10 @@
   <section id="startPanel" class="panel start-panel">
     <h2>概要</h2>
     <p class="hint">
-      真夜中に、――のことが脳裏に過ぎったから、呼ばれたんだ。<br>
-      月が見える十の部屋を巡って、自分と〇〇の関係に答えを出そう。
+      真夜中に、――のことが脳裏に過ぎったから。<br>
+      呼ばれたんだ。<br>
+      月が見える十の部屋を巡って、<br>
+      自分と〇〇の関係に答えを出そう。<br>
     </p>
 
     <h2>キャラクター設定</h2>
@@ -33,6 +36,11 @@
         <label for="targetNameInput"><span>対象</span></label>
         <input id="targetNameInput" type="text" placeholder="回答者の脳裏に過ぎった名前" />
       </div>
+      <div class="row">
+        <label for="playerColor"><span>回答者の文字色</span></label>
+        <input id="playerColor" type="color" value="#ffffff" />
+      </div>
+
       <div class="row">
         <button id="btnStart" class="btn-primary">Start</button>
       </div>
@@ -48,11 +56,13 @@
       <!-- ログ（描写＋台詞＋質問を1本化） -->
       <div id="log" class="log"></div>
 
-      <!-- Next と Entrance 全文Skip -->
-        <div class="form-actions" id="navActions"></div>
-        <button id="btnNext" class="btn-secondary">Next ▶</button>
-        <button id="btnEntranceSkip" class="btn-secondary" hidden>Silent</button>
-      </div>
+<!-- Next と EntranceSkip -->
+<div class="form-actions" id="navActions">
+  <button id="btnNext" class="btn-secondary">Next ▶</button>
+  <button id="btnEntranceSkip" class="btn-secondary" hidden>EntranceSkip ▶▶</button>
+</div>
+
+
 
       <!-- 回答フォーム（質問の時だけ表示） -->
       <form id="formArea" class="form-area" hidden>
@@ -64,9 +74,13 @@
 
       <!-- 自由発言（回答中以外・終了前のみ表示） -->
       <form id="chatArea" class="chat-area" hidden>
-        <input id="chatInput" type="text" placeholder="自由発言（キャラクターのセリフ）を入力…" />
+        <input id="chatInput" type="text" placeholder="回答者のセリフを自由に入力…" />
         <button id="btnChat" type="submit" class="btn-secondary">Send</button>
       </form>
+
+      <!-- ★ 終了時だけ使う出力ボタン置き場（最初は非表示） -->
+      <div id="exportActions" class="form-actions" hidden></div>
+
     </section>
   </main>
 

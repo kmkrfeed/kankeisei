@@ -2,20 +2,21 @@
 :root{
   --bg:#1a1b1e;
   --panel:#232428;
-  --panel-strong:#2a2c31;
-  --text:#f1f1f3;
-  --muted:#b3b6bc;
-  --accent:#8ab4ff;
+  --panel-strong:#19191b;
+  --text:#e8e8f1;
+  --muted:#a5a8ad;
+  --accent:#4E93B4;
   --line:#3a3d44;
   --warn:#ffd24d; --warn-bg:#2a2618;
   --neg:#ffb3af; --neg-bg:#2a1918;
+  --q-yellow: #F7E97E; /* 質問用の薄い黄色 */
 }
 
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0; color:var(--text); background:var(--bg);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+  font-family: "Yu Gothic", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
                "Helvetica Neue", "Noto Sans JP", "Hiragino Kaku Gothic ProN",
                "Meiryo", Arial, sans-serif;
   letter-spacing:.1px; line-height:1.7;
@@ -28,7 +29,14 @@ body{
   display:flex; align-items:center; justify-content:space-between;
 }
 .site-footer{ position:static; border-top:1px solid var(--line); border-bottom:none; justify-content:center; }
-h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.3px; color:var(--accent)}
+h1 {
+  margin:0;
+  font-size:18px;
+  font-weight:300;
+  letter-spacing:.3px;
+  color: var(--accent);
+}
+
 
 .actions{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
 .actions button{
@@ -39,28 +47,51 @@ h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.3px; color:var(--a
 .actions button:disabled{ opacity:.45; cursor:not-allowed; filter:grayscale(0.6); }
 #status{color:var(--muted); font-size:12px; margin-left:8px}
 
-.container{max-width:960px; margin:18px auto; padding:0 16px}
+.container{
+  width:100%;
+  margin:18px auto;
+  padding:0 16px;
+}
+
+/* スタート画面を表示中（#startPanel が hidden=false の時） */
+.container:has(.start-panel:not([hidden])) {
+  max-width: min(500px, 100%);   /* 例: スタート画面は狭め */
+}
+
+/* ゲーム画面を表示中（#gamePanel が hidden=false の時） */
+.container:has(.game-panel:not([hidden])) {
+  max-width: min(960px, 100%);  /* 例: 本編は広め */
+}
+
+
+
 .panel,.scenario{
   background:var(--panel); border:1px solid var(--line);
   border-radius:16px; padding:18px;
   box-shadow: 0 12px 24px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.06) inset;
 }
-.scene-title{ margin:2px 4px 12px; font-weight:800; font-size:18px; color:var(--accent); border-bottom:2px solid var(--accent); padding-bottom:6px; }
+.scene-title{ margin:2px 4px 12px; font-weight:400; font-size:18px; color:var(--accent); border-bottom:2px solid var(--accent); padding-bottom:6px; }
 
 /* Start */
-.start-panel h2{margin:6px 0 14px; font-weight:800; color:var(--accent)}
+.start-panel h2{margin:6px 0 14px; font-size: 20px; font-weight:800; color:var(--accent)}
 .start-panel .row{display:flex; align-items:center; gap:12px; margin:10px 0}
 .start-panel .row span{min-width:15em; color:var(--muted)}
-.start-panel input[type="text"]{
-  background:var(--panel-strong); color:var(--text);
-  border:1px solid var(--line); border-radius:10px; padding:10px; font-size:16px;
+.start-panel input[type="text"] {
+  background: var(--panel-strong);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 16px;
+  width: 70%;      /* ← 横幅を調整（% or px で好みに） */
+  max-width: 320px; /* ← 端末幅に合わせたいなら上限も設定 */
 }
 .start-panel button{
-  margin-top:8px; background:transparent; color:var(--text);
+  margin-top:8px; 
   border:1px solid var(--line); border-radius:10px; padding:10px 14px; cursor:pointer; min-height:44px;
 }
-.start-panel button:hover{ background:var(--panel-strong) }
-.hint{color:var(--muted); font-size:13px}
+.start-panel button:hover{ background:var(--q-yellow) }
+.hint{color:var(--muted); font-size:14px}
 .uline{text-decoration:underline}
 
 /* Narration+Question box */
@@ -80,10 +111,11 @@ h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.3px; color:var(--a
   border-radius:12px; padding:14px; height:52vh; overflow-y:auto;
 }
 .line{margin:8px 0}
-.sys{color:#cfd3da}         /* 地の文（周囲描写） */
-.term{color:#e9ecf8}        /* 記録係（端末） */
+.sys{color:#c4cbd6}         /* 地の文（周囲描写） */
+.term{color:#ffffff}        /* 記録係（端末） */
 .pc{color:#ffffff; font-weight:700}  /* キャラクター */
-.q{color:#e7eeff}
+.q{
+  color: #ffffff}
 .a{color:#fafafa}
 .room{color:var(--accent); font-weight:800}
 
@@ -106,10 +138,21 @@ h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.3px; color:var(--a
 }
 .form-area textarea{min-height:96px; resize:vertical}
 .form-actions{margin-top:10px; display:flex; gap:8px; justify-content:flex-end}
+
+/* ここを置き換え：accent背景をやめ、btn-secondary同等に */
 .form-actions button{
-  background:var(--accent); color:#0b0f1a; border:none; border-radius:10px; padding:10px 14px; cursor:pointer; min-height:44px; font-weight:800;
+  background:transparent;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:10px 14px;
+  cursor:pointer;
+  min-height:44px;
+  font-weight:800;
 }
 .form-actions button[disabled]{ opacity:.5; cursor:not-allowed }
+
+
 
 /* Free chat */
 .chat-area{ margin-top:12px; display:flex; gap:8px; align-items:center; }
@@ -121,6 +164,15 @@ h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.3px; color:var(--a
   border-radius:10px; padding:10px 14px; cursor:pointer; min-height:44px; }
 .chat-area button:hover{ background:var(--panel) }
 
+/* Chat Send ボタンを Next ボタンと同じ見た目に */
+#btnChat {
+  font-weight: 800;         /* Next と同じ太さ */
+  min-height: 44px;         /* 高さも合わせる */
+  border-radius: 10px;      /* 角丸も同じ */
+  padding: 10px 14px;
+}
+
+
 /* === Primary Button: Answer と同一見た目で統一 === */
 .btn-primary{
   background:var(--accent);
@@ -131,6 +183,11 @@ h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.3px; color:var(--a
   cursor:pointer;
   min-height:44px;
   font-weight:800;
+}
+/* ←このブロックを追加 */
+.btn-primary:hover{
+  background: var(--q-yellow);  /* 薄い黄色変数を使用 */
+  color: #0b0f1a;               /* テキスト色はそのまま黒系 */
 }
 .btn-primary[disabled]{ opacity:.5; cursor:not-allowed; }
 
@@ -151,7 +208,12 @@ h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.3px; color:var(--a
   .start-panel input[type="text"]{ width: 100%; }
 
   /* ログ高さとアクションの折り返し */
-  .log{ height: 48vh; }
+  .log {
+  max-height: 60vh;   /* 通常はこの範囲で収める */
+  height: auto;       /* 内容が少ないときは自動 */
+  min-height: 48vh;   /* 短すぎるのを防止 */
+}
+
 
   .form-actions{
     flex-wrap: wrap;
@@ -172,4 +234,122 @@ h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.3px; color:var(--a
   #navActions{ flex-wrap: wrap; }
   #navActions > button{ flex: 1; }
 }
+
+/* ===== Log area scrollbar (Chrome/Edge/Safari/Firefox) ===== */
+.log{
+  /* Firefox 用（親近色:thumb / 背景:track） */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
+
+  /* スクロールバー分の“溝”を確保して、右端のラインに被らないように */
+  scrollbar-gutter: stable;
+  padding-right: 8px; /* WebKit系の見え方安定用の保険 */
+}
+
+/* WebKit (Chrome/Edge/Safari) */
+.log::-webkit-scrollbar{
+  width: 12px;              /* 横幅（細めが好みなら 10px） */
+}
+.log::-webkit-scrollbar-track{
+  background: transparent;  /* 背景は透過でサイトの面と馴染ませる */
+}
+.log::-webkit-scrollbar-thumb{
+  background-color: var(--accent);   /* 通常時：accent */
+  border-radius: 8px;
+  /* 親要素背景色と同じ色で“外側に余白”を作り、枠線やラインに被らないように見せる */
+  border: 3px solid var(--panel-strong);
+}
+.log::-webkit-scrollbar-thumb:hover{
+  background-color: var(--q-yellow); /* ホバー：薄い黄色 */
+}
+
+/* ====== Answer row: デフォルト(PC等)は入力 + 右側にボタン ====== */
+.answer-row{
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  width: 100%;
+}
+.answer-input{
+  flex: 1 1 auto;
+}
+.answer-actions{
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  flex: 0 0 auto;
+}
+
+/* 回答者の文字色 (color input) の見た目を調整 */
+.start-panel input[type="color"] {
+  width: 50px;           /* 横幅は固定がきれい（40〜80px程度が目安） */
+  height: 38px;          /* 他の入力欄の高さに揃える */
+  padding: 0;            /* テキスト入力用の余白を無効化 */
+  border-radius: 6px;    /* 他の入力欄と同じ角丸感 */
+  border: 1px solid var(--line);
+  background: var(--panel-strong);
+  cursor: pointer;
+}
+
+/* === Sticky footer（内容が少なくてもフッターを最下部へ） === */
+html, body { height: 100%; }           /* 既にあればそのままでOK */
+body{
+  min-height: 100vh;                   /* 画面高さいっぱいに伸ばす */
+  display: flex;
+  flex-direction: column;              /* 縦並びレイアウト */
+}
+
+/* メイン領域を可変にして “余白” をここで吸収 */
+main{
+  flex: 1 0 auto;                      /* main が縦に広がる */
+}
+
+/* フッターは文書フローのまま最下部に寄せる */
+.site-footer{
+  position: static;                    /* ここは固定にしない（被り防止） */
+  margin-top: auto;                    /* フッターを一番下に押し下げる */
+  width: 100%;
+}
+
+
+
+
+/* === Mobile only (<=500px): 回答欄は1行、ボタンは下段（横並び） === */
+@media (max-width: 500px){
+  .answer-row{
+    display: block;          /* 1段目=入力, 2段目=ボタン */
+  }
+  .answer-actions{
+    display: flex;
+    justify-content: flex-end; /* 右寄せ */
+    gap: 8px;
+    margin-top: 8px;          /* 入力との間隔 */
+  }
+  /* テキストエリアを1行相当の高さに */
+  .answer-input[type="text"],
+  .answer-input[type="number"],
+  .answer-input select,
+  .answer-input textarea{
+    width: 100%;
+  }
+  .answer-input textarea{
+    min-height: 40px;         /* 好みで 36–56px 程度に */
+    resize: vertical;
+  }
+
+  /* hidden属性の扱いを念のため強制 */
+  .form-area[hidden]{ display: none !important; }
+  
+.container:has(.start-panel:not([hidden]))
+.container:has(.game-panel:not([hidden]))
+ {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - var(--footer-height, 40px));
+    /* ヘッダーが sticky なら header高さも引いてOK */
+  }
+  
+}
+
+
 

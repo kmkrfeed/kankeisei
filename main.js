@@ -17,6 +17,7 @@ const btnStart   = document.getElementById("btnStart");
 const logDiv     = document.getElementById("log");
 const sceneTitle = document.getElementById("sceneTitle");
 
+const navActions       = document.getElementById("navActions");
 const formArea   = document.getElementById("formArea");
 const formFields = document.getElementById("formFields");
 const btnSubmit  = document.getElementById("btnSubmit");
@@ -27,10 +28,78 @@ const chatArea   = document.getElementById("chatArea");
 const chatInput  = document.getElementById("chatInput");
 const btnChat    = document.getElementById("btnChat");
 
-const btnExportHtml     = document.getElementById("btnExportHtml");
-const btnExportFusetter = document.getElementById("btnExportFusetter");
+const exportActions    = document.getElementById("exportActions");
+const btnExportHtml = document.getElementById('btnExportHtml');
+const btnExportFusetter = document.getElementById('btnExportFusetter');
 const statusEl          = document.getElementById("status");
 const btnEntranceSkip = document.getElementById("btnEntranceSkip");
+
+// ===== Blob を保存する共通関数（常にグローバルに生やす） =====
+if (!window.downloadBlob) {
+  window.downloadBlob = function(blob, filename){
+    const a = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a); // Safari対策
+    a.click();
+    a.remove();
+    // revokeは少し遅らせる（Safari対策）
+    setTimeout(()=> URL.revokeObjectURL(url), 1000);
+  };
+}
+
+function updateExportButtons(){
+  const show = !!STATE.finished;
+  btnExportHtml.hidden = !show;
+  btnExportFusetter.hidden = !show;
+  btnExportHtml.disabled = !show;
+  btnExportFusetter.disabled = !show;
+}
+
+function finalizeSession(){
+  STATE.endedAt = new Date();
+  STATE.finished = true;
+
+  refreshChat();           // 終了後はチャット不可（あなたの仕様）
+  updateExportButtons();   // 出力ボタンを表示＆有効化
+  updateNextAvailability();
+}
+
+
+function showEndExportButtons(){
+  // ① プレイ中の操作は隠す
+  if (formArea)   formArea.hidden = true;
+  if (chatArea)   chatArea.hidden = true;
+  if (navActions) navActions.hidden = true;
+
+  // ② エクスポート用の置き場を表示
+  if (exportActions) exportActions.hidden = false;
+
+  // ③ ヘッダーにある出力ボタンをここへ移動＆有効化
+  if (btnExportHtml){
+    btnExportHtml.hidden   = false;
+    btnExportHtml.disabled = false;
+    exportActions.appendChild(btnExportHtml);
+  }
+  if (btnExportFusetter){
+    btnExportFusetter.hidden   = false;
+    btnExportFusetter.disabled = false;
+    exportActions.appendChild(btnExportFusetter);
+  }
+}
+
+async function finalizeAfterQueue(){
+  if (STATE.finished) return;   // 二重呼び出し防止
+  await waitQueueEmpty();       // 最後の文が出終わるのを待つ
+
+  STATE.endedAt = new Date();
+  STATE.finished = true;
+
+  refreshChat();
+  updateNextAvailability();
+  showEndExportButtons();       // ← UI 切替はここ
+}
 
 
 // ラベル/クラス統一
@@ -45,11 +114,21 @@ let btnNext = document.getElementById("btnNext");
     btnNext.textContent = "Next ▶";
   }
   btnNext.className = "btn-secondary";
-  const parent = formArea.parentElement || logDiv.parentElement || document.body;
-  parent.insertBefore(btnNext, formArea);
-  btnNext.hidden = false;
-  btnNext.style.display = "block";
-  btnNext.style.margin  = "12px 0 10px auto"; // 右寄せ
+
+  // ← ここを変更：.form-actions 内に収める
+  const nav = document.querySelector("#gamePanel .form-actions");
+  if (nav) {
+    nav.appendChild(btnNext);
+    btnNext.hidden = false;
+    // フレックス任せにするのでインラインstyleはクリア
+    btnNext.style.display = "";
+    btnNext.style.margin = "";
+  } else {
+    // フォールバック（万一 .form-actions が無い場合）
+    const parent = formArea.parentElement || logDiv.parentElement || document.body;
+    parent.insertBefore(btnNext, formArea);
+    btnNext.hidden = false;
+  }
 })();
 
 // --- STATE ---
@@ -89,15 +168,78 @@ function flash(msg){ statusEl.textContent=msg; setTimeout(()=>statusEl.textConte
 function addLine(text, cls="sys"){
   const p = document.createElement("div");
   p.className = "line " + cls;
-  p.innerHTML = escapeHtml(text).replace(/&lt;br&gt;/g,"<br>");
+
+  const expanded = expandTargetVars(String(text || ""));
+  const escaped  = escapeHtml(expanded)
+    .replace(/\n/g, "<br>")       // ← 改行→<br>
+    .replace(/&lt;br&gt;/g,"<br>"); // ← 文字列の <br> も有効化
+
+  p.innerHTML = escaped;
   logDiv.appendChild(p);
   logDiv.scrollTop = logDiv.scrollHeight;
-  STATE.log.push({ cls, text });
+  STATE.log.push({ cls, text: expanded });
 }
+
+
 function addRoomTitle(title){ addLine(`【${title}】`, "room"); }
-function aLine(text){ addLine(`${STATE.player}：${text}`, "pc"); } // キャラ発言
+
+function appendMultilineText(el, s){
+  const parts = String(s || "").split(/\r?\n/);
+  for (let i = 0; i < parts.length; i++){
+    if(i>0) el.appendChild(document.createElement("br"));
+    el.appendChild(document.createTextNode(parts[i])); // ←テキストノードなので安全
+  }
+}
+
+
+function addPcLine(text){
+  const p = document.createElement("div");
+  p.className = "line pc";
+
+  // ★ここで行全体の文字色を指定
+  p.style.color = STATE.playerColor || "#ffffff";
+  p.style.fontWeight = "700";  // 太さも行全体に
+
+  // 回答者名プレフィックス
+  const name = document.createTextNode(`${STATE.player}：`);
+  p.appendChild(name);
+
+  // セリフ本文（改行処理付き）
+  const expanded = expandTargetVars(String(text || ""));
+  appendMultilineText(p, expanded);
+
+  logDiv.appendChild(p);
+  logDiv.scrollTop = logDiv.scrollHeight;
+
+  STATE.log.push({ cls: "pc", text: `${STATE.player}：${expanded}` });
+}
+
+function aLine(text){
+  addPcLine(text);
+}
+
+
 function setTitle(t){ sceneTitle.textContent = t; }
-function setAnswer(key, room, q, a, extra){ STATE.answers[key] = { room, q, a, extra }; }
+
+function setAnswer(key, room, q, a, extra){
+  const qx = q != null ? expandTargetVars(q) : "";
+  const ax = a != null ? expandTargetVars(a) : "";
+
+  const ans = { room, q: qx, a: ax };
+
+  // 第5引数が「指定されたときだけ」自由回答プロパティを持たせる
+  if (arguments.length >= 5) {
+    const ex = (extra != null && String(extra).trim() !== "")
+      ? expandTargetVars(extra)
+      : ""; // Silent のとき等は空文字で保存（無回答判定に使う）
+    ans.extra = ex;
+    ans.free  = ex; // 後方互換
+  }
+
+  STATE.answers[key] = ans;
+}
+
+
 
 // 注意書き：プレイ中は非表示（常に隠す）
 function setNotice(kind, text){
@@ -109,11 +251,12 @@ function setNotice(kind, text){
 }
 
 // ===== 自由発言（Send） =====
-// 「回答中」or「終了後」は発言不可／それ以外は常に可
+// 自由発言（Send）を表示/非表示
 function refreshChat(){
-  const canChat = !(STATE.awaitingAnswer || STATE.finished);
+  // 質問回答中でも発言を許可する → 終了後のみ不可
+  const canChat = !STATE.finished;
   chatArea.hidden = !canChat;
-  if(canChat) chatInput.focus();
+  if (canChat) chatInput.focus();
 }
 function sendChat(){
   if(chatArea.hidden) return;
@@ -131,7 +274,13 @@ btnExportHtml.addEventListener("click", ()=>{
   const caution = (STATE.valence==="neg")
     ? "【注意】ネガティブな意見が含まれます。"
     : (STATE.valence==="neutral" ? "【注意】ネガティブな意見が含まれる可能性があります。" : "");
-  const lines = STATE.log.map(l=>`<p class="${l.cls}">${escapeHtml(l.text).replace(/&lt;br&gt;/g,"<br>")}</p>`).join("\n");
+  const lines = STATE.log.map(l=>{
+  const body = escapeHtml(l.text).replace(/&lt;br&gt;/g,"<br>");
+  const inline = (l.cls === "pc" && STATE.playerColor)
+    ? ` style="color:${STATE.playerColor};font-weight:700"`
+    : "";
+  return `<p class="${l.cls}"${inline}>${body}</p>`;
+}).join("\n");
   const html = `<!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -141,10 +290,10 @@ body{background:#111216;color:#e9e9ee;line-height:1.75;font-family:system-ui,-ap
 h1{font-size:20px;margin:0 0 8px}
 .meta{color:#9aa0a6;font-size:12px;margin-bottom:12px}
 .room{color:#8ab4ff;font-weight:800}
-.q{color:#d7e3ff}
+.q{color:#ffffff}
 .a{color:#ffffff}
-.term{color:#eef1ff}
-.pc{color:#ffffff;font-weight:700}
+.term{color:#ffffff}
+.pc{font-weight:700}
 .sys{color:#9aa0a6}
 .notice{border:1px solid #ffd24d; background:#2a2618; color:#ffe9a6; padding:10px 12px; border-radius:8px; margin:12px 0}
 .neg{border:1px solid #ffb3af; background:#2a1918; color:#ffd0cc}
@@ -153,37 +302,81 @@ p{margin:.5em 0}
 <h1>TRPG 関係性蒐集機関 — 展示記録</h1>
 <div class="meta">
   回答者：${escapeHtml(STATE.player)} ／ 対象：${escapeHtml(STATE.target)} ／
-  進行パス：${STATE.timeline ? (STATE.timeline==="current"?"現在":"過去"):"-"} × ${STATE.valence?({"pos":"ポジティブ","neutral":"半々","neg":"ネガティブ"}[STATE.valence]):"-"} ／
+  進行パターン：${STATE.timeline ? (STATE.timeline==="current"?"現在":"過去"):"-"} × ${STATE.valence?({"pos":"ポジティブ","neutral":"半々","neg":"ネガティブ"}[STATE.valence]):"-"} ／
   開始：${fmtDT(STATE.startedAt)} ／ 終了：${STATE.endedAt?fmtDT(STATE.endedAt):"-"}
 </div>
 ${caution?`<div class="notice ${STATE.valence==='neg'?'neg':''}">${caution} ※プレイヤーとキャラクターは別の存在であることを留意し、客観的に閲覧することを推奨します。</div>`:""}
 ${lines}
 </body></html>`;
   const blob = new Blob([html], { type:"text/html" });
-  downloadBlob(blob, "kankei_log.html");
+  downloadBlob(blob, "kankeisei_log.html");
   flash("HTMLを書き出しました");
 });
+
 btnExportFusetter.addEventListener("click", ()=>{
   if(btnExportFusetter.disabled) return;
+
   const tflag = STATE.timeline==="past" ? "過去" : "現在";
   const vflag = STATE.valence==="neg"?"ネガティブ":(STATE.valence==="neutral"?"半々":"ポジティブ");
   const notice = (STATE.valence==="neg")
       ? "ネガティブな意見が含まれます。"
       : (STATE.valence==="neutral" ? "ネガティブな意見が含まれる可能性があります。" : "");
+
+  // ===== 先頭に入れる案内＆本文テンプレ =====
+  const H = [];
+  H.push("README：");
+  H.push("ふせったーに投稿する際は、本文に伏せ字無しで「関係性蒐集機関」や他TRPGシナリオ・版権のネタバレを載せないようにお願いいたします。");
+  H.push("「回答者名」「対象名」には標準で伏せ字を付けておりますが、ネタバレに差し障らないと判断した場合は外していただいて構いません。");
+  H.push("「本文（伏せ字が使えます）」の範囲に伏せ字無しでネタバレを載せないことを条件に、ふせったー出力テキストの内容は自由に追加・修正いただいて構いません。");
+  H.push("また、「関係性蒐集機関」のネタバレ範囲は、『「Start」ボタンを押した後のゲーム本編の表示文全て』となります。");
+  H.push("ご協力のほどよろしくお願いいたします。");
+  H.push(""); // 空行
+  H.push("***「本文（伏せ字が使えます）」には以下をコピー***");
+  H.push("");
+  H.push("TRPG「関係性蒐集機関」をクリアしました。");
+  H.push(`回答者：[${STATE.player}]`);
+  H.push(`対象：[${STATE.target}]`);
+  H.push("ネタバレが含まれる他シナリオなど：（なしorシナリオ名を記載）");
+  H.push("");
+  H.push("#関係性蒐集機関");
+  H.push("ゲームリンク：（ここにURL）");
+  H.push(""); // 空行
+  H.push("***「追記（たくさん書けます）」には以下をコピー***");
+  H.push(""); // 空行
+
+  // ===== 既存のQ/A本文 =====
   const L = [];
   L.push(`【TRPG 関係性蒐集機関｜展示資料】`);
-  L.push(`回答者：${STATE.player} ／ 対象：${STATE.target} ／ 進行パス：${tflag} × ${vflag}`);
+  L.push(`回答者：${STATE.player} ／ 対象：${STATE.target} ／ 進行パターン：${tflag} × ${vflag}`);
   if(notice){
     L.push(`［注意書き］${notice}`);
-    L.push(`※プレイヤーとキャラクターは別の存在であることを留意し、客観的に閲覧することを推奨します。`);
+    L.push(`※プレイヤーとキャラクターは別の存在であることを留意し、客観的に閲覧することを推奨します.`);
   }
+
   function pushQA(n, key){
     const a = STATE.answers[key]||{};
     L.push(`— ${n}. ${a.room||key} —`);
     L.push(`Q. ${a.q||""}`);
-    L.push(`A. ${a.a||""}`);
-    if(a.extra){ L.push(`補記：${a.extra}`); }
+
+    // 本回答（空なら無回答）
+    const mainAnswer = (a.a && String(a.a).trim() !== "") ? a.a : "（無回答）";
+    L.push(`A. ${mainAnswer}`);
+
+    // 自由回答欄が「存在する設問」だけ扱う
+    const hasFreeField =
+      Object.prototype.hasOwnProperty.call(a, "extra") ||
+      Object.prototype.hasOwnProperty.call(a, "free");
+
+    if (hasFreeField) {
+      const freeText = (a.extra ?? a.free ?? "");
+      if (String(freeText).trim() !== "") {
+        L.push(`A（自由回答）：${freeText}`);
+      } else {
+        L.push(`A（自由回答）：（無回答）`);
+      }
+    }
   }
+
   pushQA(1, "頻度の間");
   pushQA(2, "色温度の実験室");
   pushQA(3, "心域の庭園");
@@ -194,18 +387,15 @@ btnExportFusetter.addEventListener("click", ()=>{
   pushQA(8, "尊敬の画廊");
   pushQA(9, "信頼の金庫室");
   pushQA(10,"存続の診察室");
-  const text = L.join("\n");
+
+  // ===== 先頭H + 空行 + 本文L を結合 =====
+  const text = [...H, "", "", ...L].join("\n");
+
   const blob = new Blob([text], { type:"text/plain;charset=utf-8" });
-  downloadBlob(blob, "kankei_fusetter.txt");
+  downloadBlob(blob, "kankeisei_fusetter.txt");
   flash("ふせったー用テキストを書き出しました");
 });
-function downloadBlob(blob, filename){
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=filename;
-  a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1200);
-}
+
 
 // ==== 表示キュー（Next用） ====
 function queueLinesFromBlock(text, forceCls=null){
@@ -215,19 +405,25 @@ function queueLinesFromBlock(text, forceCls=null){
     let cls = "sys";
     if(forceCls){ cls = forceCls; }
     else if(s.startsWith("記録係：")){ cls = "term"; }
-    SHOW.queue.push({ text: s, cls });
+
+    // ★ 展開してからキューへ
+    SHOW.queue.push({ text: expandTargetVars(s), cls });
   });
   updateNextAvailability();
 }
+
 function queueQuestion(text){
   const s = text.startsWith("記録係：") ? text : `記録係：${text}`;
   String(s).split("<br>").forEach(seg=>{
     const line = seg.trim();
     if(!line) return;
-    SHOW.queue.push({ text: line, cls: "q" });
+
+    // ★ 展開してからキューへ
+    SHOW.queue.push({ text: expandTargetVars(line), cls: "q" });
   });
   updateNextAvailability();
 }
+
 function revealNextLine(){
   if(SHOW.queue.length===0) return;
   const item = SHOW.queue.shift();
@@ -276,32 +472,26 @@ function requireAnswerMode(on){
 
   // ボタン見た目
   btnSubmit.className = "btn-primary";
-  btnSkip.className   = "btn-secondary";
+  btnSkip.className   = "btn-primary";
 }
 
 // 入力 + Answer/Skip の横並び行
 function makeInlineRow(inputEl){
   formFields.innerHTML = "";
 
+  // 行コンテナ（レイアウトはCSSで制御）
   const row = document.createElement("div");
-  row.style.display   = "flex";
-  row.style.gap       = "10px";
-  row.style.alignItems= "flex-start";
-  row.style.width     = "100%";
+  row.className = "answer-row";
 
-  inputEl.style.flex = "1 1 auto";
-  if(inputEl.tagName === "TEXTAREA"){
-    inputEl.style.minHeight = "88px";
-  }
+  // 入力欄（幅はCSSで制御）
+  inputEl.classList.add("answer-input");
 
+  // ボタンのラッパー（横並び/縦並びはCSSで切替）
   const right = document.createElement("div");
-  right.style.display = "flex";
-  right.style.flex    = "0 0 auto";
-  right.style.gap     = "8px";
-  right.style.alignItems = "flex-start";
+  right.className = "answer-actions";
 
   btnSubmit.textContent = "Answer";
-  btnSkip.textContent   = "Skip";
+  btnSkip.textContent = "Silent";
   right.appendChild(btnSubmit);
   right.appendChild(btnSkip);
 
@@ -309,6 +499,8 @@ function makeInlineRow(inputEl){
   row.appendChild(right);
   formFields.appendChild(row);
 }
+
+
 
 // 入力検証
 function addFormValidateForInput(el){
@@ -425,16 +617,20 @@ async function askPercent(question){
 }
 
 // ===== 進行 =====
+
 btnStart.addEventListener("click", ()=>{
   const p = (playerNameInput.value||"").trim();
   const t = (targetNameInput.value||"").trim();
   if(!p || !t){ alert("回答者名と対象者名を入力してください。"); return;}
-  STATE.player = p; STATE.target = t;
+  STATE.player = p;
+  STATE.target = t;
+  STATE.playerColor = document.getElementById("playerColor").value; // ★ここで保存
   STATE.startedAt = new Date();
   startPanel.hidden = true; gamePanel.hidden = false;
-  refreshChat();            // 開始時点でチャット可
+  refreshChat();
   nextStep();
 });
+
 
 const ROOMS = [
   step_intro,                        // 0: エントランス
@@ -749,7 +945,7 @@ async function step_q4_comm(){
   );
   await waitQueueEmpty();
 
-  setAnswer("意思疎通の回廊","意思疎通の回廊",q.replace(/^【[^】]+】<br>記録係：/,""), `${share}％`, free||null);
+  setAnswer("意思疎通の回廊","意思疎通の回廊", q.replace(/^【[^】]+】<br>記録係：/,""), `${share}％`, null);
 
   nextStep();
 }
@@ -929,11 +1125,11 @@ async function step_q7_influence(){
   await waitQueueEmpty();
 
   const q = (STATE.valence==="neg")
-    ? `記録係： 《${STATE.target}》の言葉・行動・存在は、あなたにどれほどの影響を与えますか？（0〜100）`
-    : `記録係： 《${STATE.target}》の言葉・行動・存在は、あなたにどれほどの影響を与えますか？（0〜100）`;
+    ? `記録係： 《${STATE.target}》の言葉・行動・存在は、あなたにどれほどの影響を与えますか？（％）`
+    : `記録係： 《${STATE.target}》の言葉・行動・存在は、あなたにどれほどの影響を与えますか？（％）`;
   const score = await askPercent(q);
   const free  = await askFree("【影響の広場】<br>記録係：あなたが《${STATE.target}》に影響を受けた・影響を受けていないことを具体的なエピソードで主張してください。","例：言葉・行動・出来事など（自由回答）");
-  setAnswer("影響の広場","影響の広場", q.replace(/^【[^】]+】<br>記録係：/,""), `${score}/100`, free||null);
+  setAnswer("影響の広場","影響の広場", q.replace(/^【[^】]+】<br>記録係：/,""), `${score}％`, free||null);
 
   queueLinesFromBlock(
     "記録係：展示に回答を記録いたしました。<br>" +
@@ -1138,7 +1334,7 @@ async function step_q10_sustain(){
 }
 
 
-function step_exit(){
+async function step_exit(){
   setTitle("エグジット");
   addRoomTitle("エグジット");
   queueLinesFromBlock(
@@ -1187,10 +1383,11 @@ function step_exit(){
     "記録係：……回答者の接続を解除。"
   );
 
-  STATE.endedAt = new Date();
-  STATE.finished = true;
-  refreshChat();                 // 終了後はチャット不可
-  btnExportHtml.disabled = false;
-  btnExportFusetter.disabled = false;
-  updateNextAvailability();
+  refreshChat();      // ← ここまでは finished=false なので自由発言は可能
+  await waitQueueEmpty();  // ← 最後の行を含めて、全部表示し終わるのを待つ
+
+  // ★ ここでだけ終了扱いにする（自由発言不可＆出力ボタン表示）
+  refreshChat();                // ここまでは finished=false で自由発言OK
+await finalizeAfterQueue();   // 最後の一文を出し終わってから終了扱い
+
 }
