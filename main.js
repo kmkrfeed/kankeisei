@@ -67,6 +67,26 @@ function finalizeSession(){
 }
 
 
+function isMobile(){
+  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+// 表示切替直後に万一フォーカスされた入力があれば外す（iOS対策で遅延blurも）
+function preventMobileKeyboard(){
+  if(!isMobile()) return;
+  const ae = document.activeElement;
+  if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.isContentEditable)){
+    ae.blur();
+    setTimeout(()=> {
+      const a2 = document.activeElement;
+      if (a2 && (a2.tagName === "INPUT" || a2.tagName === "TEXTAREA" || a2.isContentEditable)){
+        a2.blur();
+      }
+    }, 50);
+  }
+}
+
+
 function showEndExportButtons(){
   // ① プレイ中の操作は隠す
   if (formArea)   formArea.hidden = true;
@@ -473,6 +493,9 @@ function requireAnswerMode(on){
   // ボタン見た目
   btnSubmit.className = "btn-primary";
   btnSkip.className   = "btn-primary";
+
+ // レイアウト更新などが終わった後に
+  preventMobileKeyboard();  // ← 追加
 }
 
 // 入力 + Answer/Skip の横並び行
@@ -495,10 +518,14 @@ function makeInlineRow(inputEl){
   right.appendChild(btnSubmit);
   right.appendChild(btnSkip);
 
-  row.appendChild(inputEl);
-  row.appendChild(right);
-  formFields.appendChild(row);
+row.appendChild(inputEl);
+row.appendChild(right);
+formFields.appendChild(row);
+
+// ★ モバイルで自動キーボードが開かないようにする
+preventMobileKeyboard();
 }
+
 
 
 
@@ -725,6 +752,9 @@ async function step_intro(){
   btnEntranceSkip.hidden = true;
   nextStep();
 }
+// 例：各ステップの最後や refreshChat() の末尾など
+preventMobileKeyboard();
+
 
 async function step_q1_frequency(){
   setTitle("1. 頻度の間");
@@ -778,6 +808,8 @@ async function step_q1_frequency(){
   setAnswer("頻度の間","頻度の間","あなたと《"+STATE.target+"》は、どの程度の頻度でやり取りしていますか？", res.label);
   nextStep();
 }
+// 例：各ステップの最後や refreshChat() の末尾など
+preventMobileKeyboard();
 
 async function step_q2_valence(){
   setTitle("2. 色温度の実験室");
@@ -833,6 +865,8 @@ async function step_q2_valence(){
   setAnswer("色温度の実験室","色温度の実験室","《"+STATE.target+"》への感情は？", res.label);
   nextStep();
 }
+// 例：各ステップの最後や refreshChat() の末尾など
+preventMobileKeyboard();
 
 async function step_q3_heart_share(){
   setTitle("3. 心域の庭園");
@@ -897,6 +931,8 @@ async function step_q3_heart_share(){
   setAnswer("心域の庭園","心域の庭園", q.replace(/^【[^】]+】<br>記録係：/,""), `${share}％`, free||null);
   nextStep();
 }
+// 例：各ステップの最後や refreshChat() の末尾など
+preventMobileKeyboard();
 
 // 4. 意思疎通の回廊
 async function step_q4_comm(){
@@ -949,6 +985,8 @@ async function step_q4_comm(){
 
   nextStep();
 }
+// 例：各ステップの最後や refreshChat() の末尾など
+preventMobileKeyboard();
 
 // 5. 対等の法廷
 async function step_q5_parity(){
@@ -1006,6 +1044,8 @@ async function step_q5_parity(){
 
   nextStep();
 }
+// 例：各ステップの最後や refreshChat() の末尾など
+preventMobileKeyboard();
 
 // 6. 連帯の工房
 async function step_q6_cooperation(){
@@ -1093,6 +1133,8 @@ async function step_q6_cooperation(){
 
   nextStep();
 }
+// 例：各ステップの最後や refreshChat() の末尾など
+preventMobileKeyboard();
 
 // 7. 影響の広場
 async function step_q7_influence(){
@@ -1144,6 +1186,8 @@ async function step_q7_influence(){
 
   nextStep();
 }
+// 例：各ステップの最後や refreshChat() の末尾など
+preventMobileKeyboard();
 
 // 8. 尊敬の画廊
 async function step_q8_respect(){
@@ -1199,6 +1243,8 @@ async function step_q8_respect(){
 
   nextStep();
 }
+// 例：各ステップの最後や refreshChat() の末尾など
+preventMobileKeyboard();
 
 // 9. 信頼の金庫室
 async function step_q9_trust(){
@@ -1261,6 +1307,8 @@ async function step_q9_trust(){
 
   nextStep();
 }
+// 例：各ステップの最後や refreshChat() の末尾など
+preventMobileKeyboard();
 
 // 10. 存続の診察室
 async function step_q10_sustain(){
@@ -1332,6 +1380,8 @@ async function step_q10_sustain(){
 
   nextStep();
 }
+// 例：各ステップの最後や refreshChat() の末尾など
+preventMobileKeyboard();
 
 
 async function step_exit(){
