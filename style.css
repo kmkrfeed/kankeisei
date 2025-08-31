@@ -55,7 +55,7 @@ h1 {
 
 /* スタート画面を表示中（#startPanel が hidden=false の時） */
 .container:has(.start-panel:not([hidden])) {
-  max-width: min(500px, 100%);   /* 例: スタート画面は狭め */
+  max-width: min(740px, 100%);   /* 例: スタート画面は狭め */
 }
 
 /* ゲーム画面を表示中（#gamePanel が hidden=false の時） */
@@ -73,7 +73,8 @@ h1 {
 .scene-title{ margin:2px 4px 12px; font-weight:400; font-size:18px; color:var(--accent); border-bottom:2px solid var(--accent); padding-bottom:6px; }
 
 /* Start */
-.start-panel h2{margin:6px 0 14px; font-size: 20px; font-weight:800; color:var(--accent)}
+.start-panel h2{margin:6px 0 16px; font-size: 20px; font-weight:800; color:var(--accent); border-bottom:2px solid var(--accent); padding-bottom:6px; }
+.start-panel h3{margin:4px 0 8px; font-size: 16px; font-weight:600; color:var(--muted); border-bottom:2px solid var(--line);  padding-bottom: 4px;}
 .start-panel .row{display:flex; align-items:center; gap:12px; margin:10px 0}
 .start-panel .row span{min-width:15em; color:var(--muted)}
 .start-panel input[type="text"] {
