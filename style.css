@@ -345,11 +345,62 @@ main{
  {
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - var(--footer-height, 40px));
+    min-height: calc(90vh - var(--footer-height, 40px));
     /* ヘッダーが sticky なら header高さも引いてOK */
   }
   
 }
 
+/* === Select をボタン/テキストと同じ高さ(44px)に合わせる === */
+/* 質問回答フォーム側 */
+.form-area select{
+  background: var(--panel-strong);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+
+  /* 高さを強制 */
+  min-height: 44px;
+  height: 44px;
+
+  /* 文字サイズと内側余白を統一 */
+  font-size: 16px;
+  line-height: 22px;
+  padding: 10px 38px 10px 12px; /* 右に矢印スペース確保 */
+
+  /* ブラウザ標準の見た目を解除して高さ指定を効かせる */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* 簡易のドロップダウン矢印（なくてもOK） */
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text) 50%),
+    linear-gradient(135deg, var(--text) 50%, transparent 50%);
+  background-position:
+    right 16px center, right 10px center;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* スタート画面に select がある場合も揃える（なければ不要） */
+.start-panel select{
+  min-height: 44px;
+  height: 44px;
+  font-size: 16px;
+  padding: 10px 38px 10px 12px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Windows IE/古Edge用（展開アイコンを消す）※必要なら */
+select::-ms-expand { display: none; }
+
+/* フォーカス見やすく（任意） */
+.form-area select:focus{
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
 

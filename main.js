@@ -276,7 +276,11 @@ function refreshChat(){
   // 質問回答中でも発言を許可する → 終了後のみ不可
   const canChat = !STATE.finished;
   chatArea.hidden = !canChat;
-  if (canChat) chatInput.focus();
+// 自動フォーカスはしない（PCでもカーソルが出ない）
+  // モバイル対策のガードを採用している場合は再武装だけ行う
+  if (canChat && typeof rearmChatInputGuard === "function") {
+    rearmChatInputGuard();
+  }
 }
 function sendChat(){
   if(chatArea.hidden) return;
