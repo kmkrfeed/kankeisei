@@ -367,12 +367,11 @@ btnExportFusetter.addEventListener("click", ()=>{
   H.push("***ふせったー「本文（伏せ字が使えます）」には以下をコピー***");
   H.push("");
   H.push("");
-  H.push("TRPG「関係性蒐集機関」をクリアしました。");
+  H.push("TRPG #関係性蒐集機関 をクリアしました。");
   H.push(`回答者：[${STATE.player}]`);
   H.push(`対象：[${STATE.target}]`);
   H.push("ネタバレが含まれる他シナリオなど：（なしorシナリオ名を記載）");
-  H.push("#関係性蒐集機関");
-  H.push("https://kmkrfeed.github.io/kankeisei/");
+  H.push("シナリオ： https://kmkrfeed.github.io/kankeisei/");
   H.push(""); // 空行
   H.push("");
   H.push("***ふせったー「追記（たくさん書けます）」には以下をコピー***");
