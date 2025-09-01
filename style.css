@@ -94,7 +94,7 @@ h1 {
 .start-panel button:hover{ background:var(--q-yellow) }
 .hint{color:var(--muted); font-size:14px}
 .hint:first-of-type {
-  color: #eade7d; /* 好きな色に */
+  color: #e5dc98; /* 好きな色に */
 }
 .uline{text-decoration:underline}
 
