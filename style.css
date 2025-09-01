@@ -407,4 +407,15 @@ select::-ms-expand { display: none; }
   outline-offset: 2px;
 }
 
+/* 本文 hint 内のリンクは黄色 */
+.hint a {
+  color: var(--q-yellow);
+  text-decoration: none; /* 下線消したい場合 */
+}
+
+/* フッター内のリンクは通常テキスト色 */
+.site-footer a {
+  color: var(--text);
+  text-decoration: none; /* 下線消したい場合 */
+}
 
