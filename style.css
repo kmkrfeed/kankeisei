@@ -409,13 +409,11 @@ select::-ms-expand { display: none; }
 
 /* 本文 hint 内のリンクは黄色 */
 .hint a {
-  color: var(--q-yellow);
-  text-decoration: none; /* 下線消したい場合 */
+  color: var(--text);
 }
 
 /* フッター内のリンクは通常テキスト色 */
 .site-footer a {
   color: var(--text);
-  text-decoration: none; /* 下線消したい場合 */
 }
 
