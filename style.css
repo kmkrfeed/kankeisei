@@ -407,13 +407,15 @@ select::-ms-expand { display: none; }
   outline-offset: 2px;
 }
 
-/* 本文 hint 内のリンクは黄色 */
-.hint a {
+/* 本文 hint 内のリンク */
+.hint a,
+.hint a:visited {
   color: var(--text);
 }
 
-/* フッター内のリンクは通常テキスト色 */
-.site-footer a {
+/* フッター内のリンク */
+.site-footer a,
+.site-footer a:visited {
   color: var(--text);
 }
 
