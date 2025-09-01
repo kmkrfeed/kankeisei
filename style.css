@@ -416,6 +416,7 @@ select::-ms-expand { display: none; }
 /* フッター内のリンク */
 .site-footer a,
 .site-footer a:visited {
-  color: var(--text);
+  color: var(--accent);
+  text-decoration: none;
 }
 
