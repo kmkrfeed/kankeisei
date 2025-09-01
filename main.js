@@ -479,9 +479,19 @@ function waitQueueEmpty(){
 }
 function updateNextAvailability(){
   if(!btnNext) return;
-  btnNext.disabled = (STATE.awaitingAnswer || SHOW.queue.length===0);
-  updateEntranceSkipVisibility(); // ← 追加
+
+  // Next の制御
+  btnNext.disabled = (STATE.awaitingAnswer || SHOW.queue.length===0 || STATE.finished);
+
+  // EntranceSkip の制御
+  updateEntranceSkipVisibility();
+
+  // ★ Send ボタン（自由発言）の制御を追加
+  if (btnChat){
+    btnChat.disabled = STATE.finished; // 終了したら必ずグレーアウト
+  }
 }
+
 function updateEntranceSkipVisibility(){
   if(!btnEntranceSkip) return;
   // エントランス（step===0）で、まだ行キューが残っていて、回答中でない時だけ表示
