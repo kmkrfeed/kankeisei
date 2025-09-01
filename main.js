@@ -371,7 +371,7 @@ btnExportFusetter.addEventListener("click", ()=>{
   H.push(`回答者：[${STATE.player}]`);
   H.push(`対象：[${STATE.target}]`);
   H.push("ネタバレが含まれる他シナリオなど：（なしorシナリオ名を記載）");
-  H.push("シナリオ： https://kmkrfeed.github.io/kankeisei/");
+  H.push("シナリオ：https://kmkrfeed.github.io/kankeisei/");
   H.push(""); // 空行
   H.push("");
   H.push("***ふせったー「追記（たくさん書けます）」には以下をコピー***");
