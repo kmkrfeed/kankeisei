@@ -1354,8 +1354,8 @@ async function step_q9_trust(){
     opts = [{value:"strong",label:"そう思う"},{value:"part",label:"少しならいい"},{value:"no",label:"そうは思わない"}];
   }else{
     q = (STATE.timeline==="past")
-      ? `記録係：続けて質問いたします。当時のあなたはその秘密を《${STATE.target}》に打ち明けることができていましたか？`
-      : `記録係：続けて質問いたします。あなたはその秘密を《${STATE.target}》に打ち明けることができますか？`;
+      ? `記録係：当時のあなたはその秘密を《${STATE.target}》に打ち明けることができていましたか？`
+      : `記録係：あなたはその秘密を《${STATE.target}》に打ち明けることができますか？`;
     opts = [{value:"yes",label:"はい"},{value:"part",label:"部分的になら"},{value:"no",label:"いいえ"}];
   }
   const res = await askChoice(q, opts);
