@@ -1141,7 +1141,7 @@ async function step_q6_cooperation(){
   await waitQueueEmpty();
 
   const preQ = (STATE.timeline==="past")
-    ? `記録係： 《${STATE.target}》との関係があった当時、あなたが直面していた困難はどのようなものですか？`
+    ? `記録係：《${STATE.target}》との関係があった当時、あなたが直面していた困難はどのようなものですか？`
     : `記録係： 今あなたが思い描く困難はどのようなものですか？`;
   const detail = await askFree(preQ,"具体的なトラブル・課題など");
 
@@ -1281,7 +1281,7 @@ async function step_q8_respect(){
   refreshChat();
   await waitQueueEmpty();
 
-  const q1 = `記録係： 《${STATE.target}》に、あなたが尊敬できる一面・美点はありますか？`;
+  const q1 = `記録係：《${STATE.target}》に、あなたが尊敬できる一面・美点はありますか？`;
   const res1 = await askChoice(q1, [
     {value:"yes", label:"ある"},
     {value:"no",  label:"ない"}
