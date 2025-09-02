@@ -1021,7 +1021,7 @@ async function step_q4_comm(){
   refreshChat();
   await waitQueueEmpty();
 
- const q = `記録係：あなたは 《${STATE.target}》とどの程度意思疎通ができていると感じていますか？（%）`;
+ const q = `記録係：あなたにとって《${STATE.target}》はどの程度意思疎通ができる存在だと感じていますか？（%）`;
   const share = await askPercent(q);
 
   queueLinesFromBlock(
