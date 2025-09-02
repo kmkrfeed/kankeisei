@@ -1417,7 +1417,7 @@ async function step_q10_sustain(){
   await waitQueueEmpty();
 
   if(STATE.timeline==="past"){
-    const q = "記録係：《${STATE.target}》との関係が続かなくなった本質を、あなたはどこにあると感じていますか？　";
+    const q = "記録係：《${STATE.target}》との関係が続かなくなった本質を、あなたはどこにあると感じていますか？";
     const v = await askFree(q,"理由・きっかけ・状況の変化など（自由回答）");
     setAnswer("存続の診察室","存続の診察室", q.replace(/^【[^】]+】<br>記録係：/,""), v||"（無回答）");
   }else{
